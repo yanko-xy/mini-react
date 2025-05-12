@@ -53,6 +53,12 @@ function createChildRecondiler(shouldTrackSideEffects: boolean) {
 	}
 
 	function createChild(returnFiber: Fiber, newChild: any): Fiber | null {
+		if (isText(newChild)) {
+			const created = createFiberFromText(newChild + "");
+			created.return = returnFiber;
+			return created;
+		}
+
 		if (isObject(newChild) && newChild !== null) {
 			switch (newChild.$$typeof) {
 				case REACT_ELEMENT_TYPE: {
@@ -111,7 +117,7 @@ function createChildRecondiler(shouldTrackSideEffects: boolean) {
 				reconcileSingleTextNode(
 					returnFiber,
 					currentFirstChild,
-					newChild
+					newChild + ""
 				)
 			);
 		}
