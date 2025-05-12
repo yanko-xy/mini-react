@@ -19,23 +19,33 @@ import "./index.css";
 // 	</Fragment>
 // );
 
-class ClassComponent extends Component {
-	render() {
-		return (
-			<div>
-				<h1 className="border">ClassComponent</h1>
-				<h2>react</h2>
-			</div>
-		);
-	}
+// class ClassComponent extends Component {
+// 	render() {
+// 		return (
+// 			<div>
+// 				<h1 className="border">{this.props.name}</h1>
+// 				<h2>react</h2>
+// 			</div>
+// 		);
+// 	}
+// }
+
+function FunctionComponent({ name }: { name: string }) {
+	return (
+		<div>
+			<h1 className="border">{name}</h1>
+			<h2>react</h2>
+		</div>
+	);
 }
 
 const jsx = (
 	<main className="box border">
-		<ClassComponent />
-		{/* <h1 className="border">omg</h1>
+		<FunctionComponent name="FunctionComponent" />
+		{/* <ClassComponent name="ClassComponent" /> */}
+		<h1 className="border">omg</h1>
 		<h2>react</h2>
-		omg */}
+		omg
 	</main>
 );
 

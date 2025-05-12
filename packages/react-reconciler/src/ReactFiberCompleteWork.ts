@@ -8,6 +8,7 @@ import type { Fiber } from "./ReactInternalTypes";
 import {
 	ClassComponent,
 	Fragment,
+	FunctionComponent,
 	HostComponent,
 	HostRoot,
 	HostText,
@@ -21,6 +22,7 @@ export function completeWork(
 	switch (workInProgress.tag) {
 		case Fragment:
 		case ClassComponent:
+		case FunctionComponent:
 		case HostRoot: {
 			return null;
 		}
