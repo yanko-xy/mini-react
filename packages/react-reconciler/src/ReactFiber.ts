@@ -7,14 +7,16 @@ import { REACT_FRAGMENT_TYPE } from "shared/ReactSymbols";
 import { NoFlags, type Flags } from "./ReactFiberFlags";
 import type { Fiber } from "./ReactInternalTypes";
 import {
+	ClassComponent,
 	Fragment,
+	FunctionComponent,
 	HostComponent,
 	HostText,
 	IndeterminateComponent,
 	type WorkTag,
 } from "./ReactWorkTags";
 import type { ReactElemnet } from "shared/ReactTypes";
-import { isStr } from "shared/utils";
+import { isFn, isStr } from "shared/utils";
 
 // 创建一个fiber
 export function createFiber(
@@ -79,6 +81,15 @@ export function createFiberFromTypeAndProps(
 	pendingProps: any
 ) {
 	let fiberTag: WorkTag = IndeterminateComponent;
+
+	if (isFn(type)) {
+		// 函数组件、类组件
+		if (type.prototype.isReactComponent) {
+			fiberTag = ClassComponent;
+		} else {
+			fiberTag = FunctionComponent;
+		}
+	}
 	if (isStr(type)) {
 		// 原声标签
 		fiberTag = HostComponent;

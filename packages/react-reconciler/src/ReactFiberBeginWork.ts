@@ -6,7 +6,13 @@
 import { isNum, isStr } from "shared/utils";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFibers";
 import type { Fiber } from "./ReactInternalTypes";
-import { Fragment, HostComponent, HostRoot, HostText } from "./ReactWorkTags";
+import {
+	ClassComponent,
+	Fragment,
+	HostComponent,
+	HostRoot,
+	HostText,
+} from "./ReactWorkTags";
 
 // 1. 处理当前fiber，因为不同组件对应的fiber处理方式不同
 // 2. 返回子节点
@@ -23,6 +29,8 @@ export function beginWork(
 			return updateHostText(current, workInProgress);
 		case Fragment:
 			return updateHostFragment(current, workInProgress);
+		case ClassComponent:
+			return updateClassComponent(current, workInProgress);
 
 		// TODO:
 	}
@@ -77,6 +85,13 @@ function updateHostFragment(current: Fiber | null, workInProgress: Fiber) {
 	return workInProgress.child;
 }
 
+function updateClassComponent(current: Fiber | null, workInProgress: Fiber) {
+	const { type, pendingProps } = workInProgress;
+	const instance = new type(pendingProps);
+	const children = instance.render();
+	reconcileChildren(current, workInProgress, children);
+	return workInProgress.child;
+}
 // 协调子节点，构建新的fiber树
 function reconcileChildren(
 	current: Fiber | null,

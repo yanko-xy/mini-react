@@ -3,5 +3,8 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-export { REACT_FRAGMENT_TYPE as Fragment } from "shared/ReactSymbols";
-export { Component } from "./ReactBaseClasses";
+export function Component(props: any) {
+	this.props = props;
+}
+
+Component.prototype.isReactComponent = {};
