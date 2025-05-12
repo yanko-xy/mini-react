@@ -1,0 +1,14 @@
+{
+	"name": "scheduler",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@types/bun": "latest",
+		"vitest": "^3.1.3",
+		"shared": "workspace:*"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}
