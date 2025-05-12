@@ -3,6 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+import { isHost } from "./ReactFiberCompleteWork";
 import { Placement } from "./ReactFiberFlags";
 import type { Fiber, FiberRoot } from "./ReactInternalTypes";
 import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
@@ -37,10 +38,7 @@ function commitReconciliationEffects(finishedWork: Fiber) {
 
 function commitPlacement(finishedWork: Fiber) {
 	// parentDom.appendChild(domNode)
-	if (
-		finishedWork.stateNode &&
-		(finishedWork.tag === HostComponent || finishedWork.tag === HostText)
-	) {
+	if (finishedWork.stateNode && isHost(finishedWork)) {
 		// finishedWork是有dom节点
 		const domNode = finishedWork.stateNode;
 		// 找domNode的父dom节点对应的fiber
@@ -52,6 +50,13 @@ function commitPlacement(finishedWork: Fiber) {
 			parentDom = parentDom.containerInfo;
 		}
 		parentDom.appendChild(domNode);
+	} else {
+		// Fragment
+		let kid = finishedWork.child;
+		while (kid !== null) {
+			commitPlacement(kid);
+			kid = kid.sibling;
+		}
 	}
 }
 

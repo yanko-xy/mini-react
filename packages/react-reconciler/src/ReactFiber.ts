@@ -3,9 +3,11 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT\
 
+import { REACT_FRAGMENT_TYPE } from "shared/ReactSymbols";
 import { NoFlags, type Flags } from "./ReactFiberFlags";
 import type { Fiber } from "./ReactInternalTypes";
 import {
+	Fragment,
 	HostComponent,
 	HostText,
 	IndeterminateComponent,
@@ -80,6 +82,8 @@ export function createFiberFromTypeAndProps(
 	if (isStr(type)) {
 		// 原声标签
 		fiberTag = HostComponent;
+	} else if (type === REACT_FRAGMENT_TYPE) {
+		fiberTag = Fragment;
 	}
 
 	const fiber = createFiber(fiberTag, pendingProps, key);
