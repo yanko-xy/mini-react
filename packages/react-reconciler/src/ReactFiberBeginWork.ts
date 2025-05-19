@@ -14,6 +14,7 @@ import {
 	HostRoot,
 	HostText,
 } from "./ReactWorkTags";
+import { renderWithHooks } from "./ReactFiberHooks";
 
 // 1. 处理当前fiber，因为不同组件对应的fiber处理方式不同
 // 2. 返回子节点
@@ -52,6 +53,10 @@ function updateHostRoot(
 	const nextChildren = workInProgress.memoizedState.element;
 
 	reconcileChildren(current, workInProgress, nextChildren);
+
+	if (current) {
+		current.child = workInProgress.child;
+	}
 
 	return workInProgress.child;
 }
@@ -98,7 +103,13 @@ function updateClassComponent(current: Fiber | null, workInProgress: Fiber) {
 
 function updateFunctionComponent(current: Fiber | null, workInProgress: Fiber) {
 	const { type, pendingProps } = workInProgress;
-	const children = type(pendingProps);
+	// const children = type(pendingProps);
+	const children = renderWithHooks(
+		current,
+		workInProgress,
+		type,
+		pendingProps
+	);
 	reconcileChildren(current, workInProgress, children);
 	return workInProgress.child;
 }
@@ -115,6 +126,7 @@ function reconcileChildren(
 			null,
 			nextChildren
 		);
+
 	} else {
 		// 更新
 		workInProgress.child = reconcileChildFibers(
@@ -122,6 +134,7 @@ function reconcileChildren(
 			current.child,
 			nextChildren
 		);
+
 	}
 }
 

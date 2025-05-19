@@ -3,7 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-export function Component(props: any) {
+export function Component(this: any, props: any) {
 	this.props = props;
 }
 

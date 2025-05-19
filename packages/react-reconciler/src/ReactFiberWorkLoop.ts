@@ -31,6 +31,8 @@ export function scheduleUpdateOnFiber(root: FiberRoot, fiber: Fiber) {
 }
 
 export function performConcurrentWorkOnRoot(root: FiberRoot) {
+
+
 	// ! 1. render, 构建fiber树VDOM (beginWOrk | completeWork)
 	renderRootSync(root);
 
@@ -41,21 +43,29 @@ export function performConcurrentWorkOnRoot(root: FiberRoot) {
 		root
 	);
 
+
+
 	const finishedWork = root.current.alternate;
 	root.finishedWork = finishedWork;
+
+
 
 	// ! 2. commit, VDOM->DOM
 	commitRoot(root);
 }
 
 function renderRootSync(root: FiberRoot) {
+
 	// !1. render阶段开始
 	const prevExecutionContext = executionContext;
 	executionContext |= RenderContext;
+
 	// !2. 初始化
 	prepareFreshStack(root);
+
 	// !3. 遍历构建fiber树
 	workLoopSync();
+
 	// !4. render结束
 	executionContext = prevExecutionContext;
 	workInProgressRoot = null;
@@ -78,20 +88,29 @@ function prepareFreshStack(root: FiberRoot) {
 
 	workInProgressRoot = root; // FiberRoot
 	const rootWorkInProgress = createWorkInProgress(root.current, null);
-	workInProgress = rootWorkInProgress; // Firber
 
+
+	if (workInProgress === null) {
+		workInProgress = createWorkInProgress(root.current, null);
+	}
 	return rootWorkInProgress;
 }
 
 function workLoopSync() {
 	while (workInProgress !== null) {
-		performUnitOfWork(workInProgress);
+		performUnitOfWork(workInProgress)
 	}
 }
 function performUnitOfWork(unitOfWork: Fiber) {
 	const current = unitOfWork.alternate;
+
 	// !1. beginWork
 	let next = beginWork(current, unitOfWork);
+	console.log("🚀 ~ performUnitOfWork ~ beginWork: ", unitOfWork);
+
+	// ! 把pendingProps更新到memoizedProps
+	unitOfWork.memoizedProps = unitOfWork.pendingProps;
+
 	// 1.1 执行自己
 	// 1.2 (协调、 bailout) 返回子节点
 	if (next === null) {
@@ -101,6 +120,7 @@ function performUnitOfWork(unitOfWork: Fiber) {
 	} else {
 		workInProgress = next;
 	}
+
 }
 
 // 深度优先遍历
@@ -109,8 +129,10 @@ function completeUnitOfWork(unitOfWork: Fiber) {
 
 	do {
 		const current = completedWork.alternate;
+
 		const returnFiber = completedWork.return;
 		let next = completeWork(current, completedWork);
+		console.log("🚀 ~ completeUnitOfWork ~ completedWork: ", completedWork);
 		if (next !== null) {
 			workInProgress = next;
 			return;

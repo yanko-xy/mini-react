@@ -6,7 +6,11 @@
 import type { ReactElemnet } from "shared/ReactTypes";
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbols";
 import type { Fiber } from "./ReactInternalTypes";
-import { craeteFiberFromElement, createFiberFromText } from "./ReactFiber";
+import {
+	craeteFiberFromElement,
+	createFiberFromText,
+	createWorkInProgress,
+} from "./ReactFiber";
 import { Placement } from "./ReactFiberFlags";
 import { isArray, isNum, isObject, isStr } from "shared/utils";
 
@@ -41,13 +45,47 @@ function createChildRecondiler(shouldTrackSideEffects: boolean) {
 		return created;
 	}
 
+	function useFiber(fiber: Fiber, props: any) {
+		const clone = createWorkInProgress(fiber, props);
+		clone.index = 0;
+		clone.sibling = null;
+		return clone;
+	}
+
 	// 协调单个节点，对于页面初次渲染，创建fiber，不涉及对比复用老节点
 	function reconcileSingleElement(
 		returnFiber: Fiber,
 		currentFirstChild: Fiber | null,
-		newChild: ReactElemnet
+		element: ReactElemnet
 	): Fiber {
-		let createdFiber = craeteFiberFromElement(newChild);
+		// 节点复用的条件
+		// 1. 同一层级下
+		// 2. 类型相同
+		// 3. key相同
+		const key = element.key;
+		let child = currentFirstChild;
+		while (child !== null) {
+			if (child.key === key) {
+				const elementType = element.type;
+				if (elementType === child.type) {
+					// TODO: 后面其他fiber可以删除
+					const existing = useFiber(child, element.props);
+					existing.return = returnFiber;
+					return existing;
+				} else {
+					// 前提：React不认为同一层级下有两个相同的key值
+					break;
+				}
+			} else {
+				// TODO
+				// 删除单个节点
+			}
+
+			//  老fiber时单链表
+			child = child.sibling;
+		}
+
+		let createdFiber = craeteFiberFromElement(element);
 		createdFiber.return = returnFiber;
 		return createdFiber;
 	}

@@ -1,4 +1,4 @@
-import { Component, Fragment, ReactDOM } from "../which-react";
+import { Component, Fragment, ReactDOM, useReducer } from "../which-react";
 import "./index.css";
 
 // const fragment1 = (
@@ -31,26 +31,32 @@ import "./index.css";
 // }
 
 function FunctionComponent({ name }: { name: string }) {
+	const [count1, setCount1] = useReducer((x: any) => x + 1, 0);
 	return (
-		<div>
-			<h1 className="border">{name}</h1>
-			<h2>react</h2>
+		<div className="border">
+			<button
+				onClick={() => {
+					setCount1();
+				}}
+			>
+				{count1}
+			</button>
 		</div>
 	);
 }
 
 const jsx = (
-	<main className="box border">
+	<div className="box border">
 		<FunctionComponent name="FunctionComponent" />
 		{/* <ClassComponent name="ClassComponent" /> */}
 		<h1 className="border">omg</h1>
 		<h2>react</h2>
 		omg
-	</main>
+	</div>
 );
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-	jsx as any
+	<FunctionComponent name="FunctionComponent" /> as any
 );
 
 // ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

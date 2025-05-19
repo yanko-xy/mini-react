@@ -29,13 +29,19 @@ export function completeWork(
 		case HostComponent: {
 			// 原声标签, type是标签名
 			const { type } = workInProgress;
-			// 1. 创建真是DOM
-			const instance = document.createElement(type);
-			// 2. 初始化DOM属性
-			finalizeInitialChildren(instance, newProps);
-			// 3. 把子dom节点挂载到父节点上
-			appendAllChildren(instance, workInProgress);
-			workInProgress.stateNode = instance;
+
+			console.log(current, workInProgress.stateNode)
+			if (current !== null && workInProgress.stateNode != null) {
+				updateHostComponent(current, workInProgress, type, newProps);
+			} else {
+				// 1. 创建真是DOM
+				const instance = document.createElement(type);
+				// 2. 初始化DOM属性
+				finalizeInitialChildren(instance, null, newProps);
+				// 3. 把子dom节点挂载到父节点上
+				appendAllChildren(instance, workInProgress);
+				workInProgress.stateNode = instance;
+			}
 			return null;
 		}
 		case HostText: {
@@ -51,17 +57,62 @@ export function completeWork(
 	);
 }
 
-// 初始化属性
-function finalizeInitialChildren(domElement: Element, props: any) {
-	for (const propKey in props) {
-		const nextProp = props[propKey];
+function updateHostComponent(
+	current: Fiber,
+	workInProgress: Fiber,
+	type: string,
+	newProps: any
+) {
+	if (current.memoizedProps === newProps) {
+		return;
+	}
+
+	finalizeInitialChildren(
+		workInProgress.stateNode,
+		current.memoizedProps,
+		newProps
+	);
+}
+
+// 初始化、更新属性
+function finalizeInitialChildren(
+	domElement: Element,
+	prevProps: any,
+	nextProps: any
+) {
+	// 遍历旧的props
+	for (const propKey in prevProps) {
+		const prevProp = prevProps[propKey];
+		if (propKey === "children") {
+			if (isStr(prevProp) || isNum(prevProp)) {
+				domElement.textContent = "";
+			}
+		} else {
+			// 设置属性
+			if (propKey === "onClick") {
+				document.removeEventListener("click", prevProp);
+			} else {
+				if (!(prevProp in nextProps)) {
+					domElement[propKey] = "";
+				}
+			}
+		}
+	}
+
+	// 遍历新的props
+	for (const propKey in nextProps) {
+		const nextProp = nextProps[propKey];
 		if (propKey === "children") {
 			if (isStr(nextProp) || isNum(nextProp)) {
 				domElement.textContent = nextProp.toString();
 			}
 		} else {
 			// 设置属性
-			domElement[propKey] = nextProp;
+			if (propKey === "onClick") {
+				document.addEventListener("click", nextProp);
+			} else {
+				domElement[propKey] = nextProp;
+			}
 		}
 	}
 }
